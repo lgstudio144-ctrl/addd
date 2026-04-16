@@ -2,6 +2,7 @@ import express from 'express';
 import { config } from './config';
 import routes from './routes/index';
 import { errorHandler } from './middleware/errorHandler';
+import { apiKeyAuth } from './middleware/apiKeyAuth';
 
 export function createApp(): express.Application {
   const app = express();
@@ -9,7 +10,7 @@ export function createApp(): express.Application {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
-  app.use(config.apiPrefix, routes);
+  app.use(config.apiPrefix, apiKeyAuth, routes);
 
   app.use(errorHandler);
 
