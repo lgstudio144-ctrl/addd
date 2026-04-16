@@ -1,0 +1,31 @@
+# Cloudflare Workers configuration
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "addd"
+main = "dist-worker/worker.js"
+compatibility_date = "2024-09-23"
+
+# Enable Node.js compatibility shims (needed for crypto, Buffer, jimp, jsqr).
+compatibility_flags = ["nodejs_compat"]
+
+# ── Local development ────────────────────────────────────────────────────────
+[dev]
+port = 8787
+
+# ── Environment variables ─────────────────────────────────────────────────────
+# Uncomment and set values for the environment you want to target.
+# Secrets (like API_KEY) should be set via `wrangler secret put API_KEY` rather
+# than committed here.
+[vars]
+API_PREFIX = "/api/v1"
+# API_KEY = ""   # set via: wrangler secret put API_KEY
+
+# ── Staging environment ───────────────────────────────────────────────────────
+[env.staging]
+name = "addd-staging"
+vars = { API_PREFIX = "/api/v1" }
+
+# ── Production environment ───────────────────────────────────────────────────
+[env.production]
+name = "addd-production"
+vars = { API_PREFIX = "/api/v1" }
