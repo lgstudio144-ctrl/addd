@@ -10,6 +10,13 @@
 import { Hono } from 'hono';
 import { createHonoApp } from './hono-app';
 import type { Bindings } from './hono-app';
+import { seedStore } from './seeder';
+import { spaasCatalog } from './seeds/spaas';
+
+// Pre-load the Spaas product catalog at module-initialisation time so every
+// known Spaas barcode resolves immediately on the first request the Worker
+// receives (module state persists across requests within a Worker instance).
+seedStore(spaasCatalog);
 
 const apiPrefix =
   (typeof process !== 'undefined' ? process.env['API_PREFIX'] : undefined) ?? '/api/v1';

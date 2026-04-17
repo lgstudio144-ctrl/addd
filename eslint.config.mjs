@@ -56,6 +56,6 @@ export default [
     rules: sharedRules,
   },
   {
-    ignores: ['node_modules/', 'dist/', 'coverage/', 'jest.config.js', 'eslint.config.mjs'],
+    ignores: ['node_modules/', 'dist/', 'dist-worker/', 'coverage/', 'jest.config.js', 'eslint.config.mjs'],
   },
 ];
