@@ -7,4 +7,5 @@ export const config = {
   nodeEnv: process.env['NODE_ENV'] ?? 'development',
   apiPrefix: process.env['API_PREFIX'] ?? '/api/v1',
   apiKey: process.env['API_KEY'] ?? '',
+  jwtSecret: process.env['JWT_SECRET'] ?? '',
 };
