@@ -10,6 +10,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "dev:worker": "wrangler dev --env staging",
     "deploy": "npm run build:worker && wrangler deploy",
+    "deploy:demo": "npm run build:worker && wrangler deploy --env demo",
     "deploy:staging": "npm run build:worker && wrangler deploy --env staging",
     "deploy:production": "npm run build:worker && wrangler deploy --env production",
     "test": "jest",

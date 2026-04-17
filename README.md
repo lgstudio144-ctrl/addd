@@ -214,16 +214,49 @@ curl -X POST http://localhost:3000/api/v1/scan \
 
 ## Cloudflare Workers deployment
 
+Three environments are available: **demo** (for live testing), **staging**, and **production**.
+
+### One-time setup (per environment)
+
 ```bash
-# 1. Authenticate
+# 1. Authenticate with Cloudflare
 npx wrangler login
 
-# 2. Set secrets (never committed)
-npx wrangler secret put API_KEY --env staging
-npx wrangler secret put JWT_SECRET --env staging
+# 2. Set secrets — never committed to source control
+npx wrangler secret put JWT_SECRET --env demo
+npx wrangler secret put API_KEY    --env demo   # optional service-level key
+```
 
-# 3. Deploy
-npm run deploy:staging
+### Manual deploy
+
+```bash
+npm run deploy:demo        # → addd-demo.workers.dev
+npm run deploy:staging     # → addd-staging.workers.dev
+npm run deploy:production  # → addd-production.workers.dev
+```
+
+### Automated CI/CD (GitHub Actions)
+
+| Workflow | File | Trigger | Target |
+|---|---|---|---|
+| `CI` | `ci.yml` | push / PR → `main` | lint + test + build only |
+| `Deploy — Demo` | `deploy-demo.yml` | push to **any branch except main** + manual dispatch | `addd-demo` worker |
+
+The demo workflow runs the full CI suite first (lint → format → test → build → worker build) and only deploys if all checks pass.
+
+#### Required GitHub secrets
+
+Add these in **Settings → Secrets and variables → Actions**:
+
+| Secret | Description |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | Wrangler API token with *Edit Workers* permission |
+| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID |
+
+After a successful deploy the live demo URL is:
+
+```
+https://addd-demo.<CLOUDFLARE_ACCOUNT_ID>.workers.dev/api/v1/health
 ```
 
 Environment variables (`API_PREFIX`, etc.) live in `wrangler.toml`; secrets go via `wrangler secret put`.

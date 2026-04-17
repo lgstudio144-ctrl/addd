@@ -1,0 +1,99 @@
+name: Deploy — Demo
+
+# Deploys the Cloudflare Workers build to the `addd-demo` worker so that the
+# team can test the full SaaS stack (login, stock, orders, payments) at a live
+# URL before merging to main.
+#
+# Trigger: every push to the active feature/PR branch AND manual dispatch.
+#
+# Required GitHub secrets (Settings → Secrets → Actions):
+#   CLOUDFLARE_API_TOKEN  — Wrangler API token with "Edit Workers" permission
+#   CLOUDFLARE_ACCOUNT_ID — Your Cloudflare account ID
+#
+# Worker secrets set via Wrangler (one-time, not in this file):
+#   wrangler secret put JWT_SECRET --env demo
+#   wrangler secret put API_KEY    --env demo   # optional
+
+on:
+  push:
+    branches-ignore:
+      - main          # main gets its own deployment pipeline
+  workflow_dispatch:  # allow manual "Deploy to demo" button in GitHub UI
+
+jobs:
+  ci:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build Express app
+        run: npm run build
+
+      - name: Build Cloudflare Workers bundle
+        run: npm run build:worker
+
+      # Upload the compiled worker bundle so the deploy job can reuse it
+      # without rebuilding.
+      - name: Upload worker artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-worker
+          path: dist-worker/
+          retention-days: 1
+
+  deploy-demo:
+    name: Deploy to addd-demo (Cloudflare Workers)
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: demo
+      url: https://addd-demo.${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.workers.dev
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Restore the pre-built worker bundle from the CI job.
+      - name: Download worker artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-worker
+          path: dist-worker/
+
+      - name: Deploy to Cloudflare Workers (demo)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env demo

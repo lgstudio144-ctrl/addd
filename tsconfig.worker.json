@@ -8,5 +8,13 @@
     "lib": ["ES2022", "DOM"],
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["src/worker.ts", "src/hono-app.ts", "src/store.ts"]
+  "include": [
+    "src/worker.ts",
+    "src/hono-app.ts",
+    "src/store.ts",
+    "src/auth.ts",
+    "src/rateLimiter.ts",
+    "src/seeder.ts",
+    "src/seeds/spaas.ts"
+  ]
 }

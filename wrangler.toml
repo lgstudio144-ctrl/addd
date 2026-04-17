@@ -21,6 +21,13 @@ API_PREFIX = "/api/v1"
 # API_KEY = ""      # set via: wrangler secret put API_KEY
 # JWT_SECRET = ""   # set via: wrangler secret put JWT_SECRET
 
+# ── Demo environment (for testing / demos) ────────────────────────────────────
+# Deploy: npm run deploy:demo
+# Secrets: wrangler secret put JWT_SECRET --env demo
+[env.demo]
+name = "addd-demo"
+vars = { API_PREFIX = "/api/v1" }
+
 # ── Staging environment ───────────────────────────────────────────────────────
 [env.staging]
 name = "addd-staging"
